@@ -44,6 +44,7 @@ class Action {
 export default class ActionNetwork extends HTMLElement {
   private _iframe: HTMLIFrameElement | null = null
   private _action: Action | null = null
+  private _url: string | null = null
 
   public get action(): string | null {
     return this.getAttribute('action')
@@ -89,6 +90,7 @@ export default class ActionNetwork extends HTMLElement {
       if (this._iframe.contentWindow) this._iframe.contentWindow.removeEventListener('message', this.onIframeMessage)
     }
     this._iframe = null
+    if (this._url) URL.revokeObjectURL(this._url)
   }
 
   private setupIframe() {
@@ -98,7 +100,8 @@ export default class ActionNetwork extends HTMLElement {
       this.shadowRoot!.appendChild(this._iframe)
     }
     this._iframe.addEventListener('load', this.onIframeLoad)
-    this._iframe.srcdoc = makeIframeDoc(this._action)
+    this._url = URL.createObjectURL(new Blob([makeIframeDoc(this._action)], { type: 'text/html' }))
+    this._iframe.src = this._url
   }
 
   private onIframeLoad = () => {
@@ -122,9 +125,8 @@ export default class ActionNetwork extends HTMLElement {
     this._iframe!.style.height = this
       ._iframe!
       .contentDocument!
-      .documentElement
-      .getBoundingClientRect()
-      .height + 'px'
+      .body
+      .scrollHeight + 'px'
   }
 }
 
