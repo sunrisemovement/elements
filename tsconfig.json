@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "es2019",
     "strict": true,
     "moduleResolution": "node",
     "module": "esnext",
@@ -11,6 +11,7 @@
     "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
-    "lib": ["esnext", "dom", "webworker"]
-  }
+    "lib": ["esnext", "dom"],
+  },
+  "include": ["src/**/*"]
 }
