@@ -102,7 +102,6 @@ export default class ActionNetwork extends HTMLElement {
   }
 
   private onIframeLoad = () => {
-    console.log('hi')
     this._iframe!.contentWindow!.addEventListener('message', this.onIframeMessage)
   }
 
@@ -196,7 +195,8 @@ const makeIframeDoc = (action: Action) => (
   <script>
     window.addEventListener('resize', () => {
       requestAnimationFrame(() => {
-        document.getElementById('can_embed_form').classList.toggle('can_768', window.innerWidth >= 768)
+        const form = document.getElementById('can_embed_form')
+        form && form.classList.toggle('can_768', window.innerWidth >= 768)
       })
     })
     window.addEventListener('can_embed_loaded', () => {
