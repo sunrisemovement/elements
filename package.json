@@ -4,7 +4,8 @@
   "description": "Custom Elements used by Sunrise Movement",
   "scripts": {
     "examples": "pack build && http-server",
-    "build": "pack build"
+    "build": "pack build",
+    "version": "npm run build"
   },
   "keywords": [],
   "author": "Sunrise Movement <https://sunrisemovement.org>",
