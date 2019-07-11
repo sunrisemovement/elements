@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script type="module">
+      import StaticMap from '../pkg/dist-src/StaticMap/index.js'
+      customElements.define('sunrise-static-map', StaticMap)
+    </script>
+    <style>
+      body { margin: 0; }
+      sunrise-static-map { width: 600px; height: 600px; }
+    </style>
+  </head>
+  <body>
+    <sunrise-static-map
+      latitude="42.338459"
+      longitude="-83.052761"
+      zoom="17"
+      icon-color="yellow">
+    </sunrise-static-map>
+  </body>
+</html>
