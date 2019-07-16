@@ -23,6 +23,9 @@ class Action {
         case 'forms':
           type = 'form'
           break
+        case 'event_campaigns':
+          type = 'campaign'
+          break
         default:
           return null
       }
@@ -32,14 +35,33 @@ class Action {
     }
   }
 
-  public containerId() {
-    return `can-${this.type}-area-${this.id}`
+  public containerId(): string {
+    return `can-${this.linkType()}-area-${this.id}`
   }
 
-  public scriptUrl() {
-    return `https://actionnetwork.org/widgets/v3/${this.type}/${this.id}?format=js&source=widget&style=full`
+  public scriptUrl(layout: Layout): string {
+    const url = new URL(`https://actionnetwork.org/widgets/v3/${this.linkType()}/${this.id}`)
+    url.searchParams.append('format', 'js')
+    url.searchParams.append('source', 'widget')
+    if (layout === 'full') url.searchParams.append('style', 'full')
+    return url.href
+  }
+
+  private linkType(): string {
+    switch (this.type) {
+      case 'event':
+        return 'event'
+      case 'form':
+        return 'form'
+      case 'campaign':
+        return 'event_campaign'
+    }
   }
 }
+
+export type Layout =
+  | 'standard'
+  | 'full'
 
 export default class ActionNetwork extends HTMLElement {
   private _iframe: HTMLIFrameElement | null = null
@@ -53,6 +75,16 @@ export default class ActionNetwork extends HTMLElement {
     if (typeof value !== 'string' || value !== null) return
     if (value === null) this.removeAttribute('action')
     else this.setAttribute('action', value)
+  }
+
+  public get layout(): Layout {
+    const attribute = this.getAttribute('layout')
+    if (attribute === 'full' || attribute === 'standard') return attribute
+    else return 'standard'
+  }
+  public set layout(value: Layout) {
+    if (value !== 'standard' && value !== 'full') this.setAttribute('layout', 'standard')
+    else this.setAttribute('layout', value)
   }
 
   constructor() {
@@ -100,7 +132,7 @@ export default class ActionNetwork extends HTMLElement {
       this.shadowRoot!.appendChild(this._iframe)
     }
     this._iframe.addEventListener('load', this.onIframeLoad)
-    this._url = URL.createObjectURL(new Blob([makeIframeDoc(this._action)], { type: 'text/html' }))
+    this._url = URL.createObjectURL(new Blob([makeIframeDoc(this._action, this.layout)], { type: 'text/html' }))
     this._iframe.src = this._url
   }
 
@@ -147,7 +179,7 @@ iframe {
 }
 `
 
-const makeIframeDoc = (action: Action) => (
+const makeIframeDoc = (action: Action, layout: Layout) => (
 `<!DOCTYPE html>
 <html>
 <head>
@@ -167,6 +199,7 @@ const makeIframeDoc = (action: Action) => (
     }
     body {
       margin: 0;
+      padding: 16px;
     }
     h2 {
       text-transform: uppercase !important;
@@ -190,11 +223,12 @@ const makeIframeDoc = (action: Action) => (
       color: var(--color-charcoal);
     }
   </style>
-  <script src="${action.scriptUrl()}" async></script>
+  <script src="${action.scriptUrl(layout)}" async></script>
 </head>
 <body>
   <div class="sunrise-action-network-container" id="${action.containerId()}"></div>
   <script>
+    console.log(window.location)
     window.addEventListener('resize', () => {
       requestAnimationFrame(() => {
         const form = document.getElementById('can_embed_form')
