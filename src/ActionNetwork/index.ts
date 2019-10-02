@@ -47,6 +47,10 @@ class Action {
     return url.href
   }
 
+  public containerClass(): string {
+    return this.type
+  }
+
   private linkType(): string {
     switch (this.type) {
       case 'event':
@@ -63,8 +67,11 @@ export type Layout =
   | 'standard'
   | 'full'
 
+export type Theme =
+  | 'light'
+  | 'dark'
+
 export default class ActionNetwork extends HTMLElement {
-  private _iframe: HTMLIFrameElement | null = null
   private _action: Action | null = null
   private _url: string | null = null
 
@@ -87,163 +94,159 @@ export default class ActionNetwork extends HTMLElement {
     else this.setAttribute('layout', value)
   }
 
-  constructor() {
-    super()
-    this.attachShadow({ mode: 'open' })
+  public get theme(): Theme {
+    const attribute = this.getAttribute('theme')
+    if (attribute === 'dark' || attribute === 'light') return attribute
+    else return 'light'
+  }
+  public set theme(value: Theme) {
+    if (value !== 'dark' && value !== 'light') this.setAttribute('theme', 'light')
+    else this.setAttribute('theme', value)
   }
 
   protected attributeChangedCallback(name: string, _oldValue: any, newValue: any) {
     if (name === 'action' && typeof newValue === 'string') {
       this._action = Action.parse(newValue)
-      if (this._action) window.requestAnimationFrame(() => this.setupIframe())
-      else this.tearDownIframe()
     } else if (name === 'action') {
       this._action = null
-      this.tearDownIframe()
     }
   }
 
   protected connectedCallback() {
     if (this.hasAttribute('action')) this._action = Action.parse(this.getAttribute('action')!)
+    if (!this._action) return
+
     const style = document.createElement('style')
-    style.textContent = hostStyle
-    this.shadowRoot!.appendChild(style)
-    this.setupIframe()
+    style.textContent = createStyle(this._action.containerId())
+    this.appendChild(style)
+
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.type = 'text/css'
+    link.href = 'https://actionnetwork.org/css/style-embed-whitelabel-v3.css'
+    this.appendChild(link)
+
+    const script = document.createElement('script')
+    script.async = true
+    script.src = this._action.scriptUrl(this.layout)
+    this.appendChild(script)
+
+    const div = document.createElement('div')
+    div.id = this._action.containerId()
+    div.className = this._action.containerClass() + ' ' + this.theme
+    this.appendChild(div)
+
+    this.style.display = 'block'
   }
 
   protected disconnectedCallback() {
-    this.tearDownIframe()
-  }
-
-  private tearDownIframe() {
-    if (this._iframe) {
-      this.shadowRoot!.removeChild(this._iframe)
-      this._iframe.removeEventListener('load', this.onIframeLoad)
-      if (this._iframe.contentWindow) this._iframe.contentWindow.removeEventListener('message', this.onIframeMessage)
-    }
-    this._iframe = null
-    if (this._url) URL.revokeObjectURL(this._url)
-  }
-
-  private setupIframe() {
-    if (!this._action) return
-    if (!this._iframe) {
-      this._iframe = document.createElement('iframe')
-      this.shadowRoot!.appendChild(this._iframe)
-    }
-    this._iframe.addEventListener('load', this.onIframeLoad)
-    this._url = URL.createObjectURL(new Blob([makeIframeDoc(this._action, this.layout)], { type: 'text/html' }))
-    this._iframe.src = this._url
-  }
-
-  private onIframeLoad = () => {
-    this._iframe!.contentWindow!.addEventListener('message', this.onIframeMessage)
-  }
-
-  private onIframeMessage = (e: MessageEvent) => {
-    if (typeof e.data !== 'object' || Array.isArray(e.data) || e.data === null) return
-    switch(e.data.type) {
-      case 'resize': {
-        this.resizeIframe()
-        return
-      }
-      default: {
-        return
-      }
-    }
-  }
-
-  private resizeIframe = () => {
-    this._iframe!.style.height = this
-      ._iframe!
-      .contentDocument!
-      .body
-      .scrollHeight + 'px'
+    this.innerHTML = ''
   }
 }
 
-const hostStyle = `
-:host {
+const createStyle = (id: string) => `
+#${id} {
+  --color-charcoal: rgb(51, 52, 46);
+  --color-charcoal-60pct: rgba(51, 52, 46, 0.6);
+  --color-charcoal-40pct: rgba(51, 52, 46, 0.4);
+  --color-yellow: #ffde16;
+
   display: block;
   overflow: auto;
   min-height: 0;
   height: auto;
+  font-family: Source Sans Pro;
+  box-sizing: border-box;
+  padding: 16px;
 }
 
-iframe {
-  display: block;
+#${id} * {
+  box-sizing: border-box;
+}
+
+/* Theme */
+
+#${id}.light {
+  background-color: #ffffff;
+  color: var(--color-charcoal);
+}
+
+#${id}.dark {
+  background-color: #121212;
+  color: rgba(255,255,255,0.87);
+}
+
+#${id}.dark #can_embed_form #action_welcome_message #action_welcome_message_inner {
+  background-color: #121212;
+  border-color: #696969;
+}
+
+#${id}.dark #can_embed_form #can_main_col #action_info #action_info_inner {
+  background-color: #333333;
+  border-color: #696969;
+}
+
+/* Defaults */
+
+#${id} h2 {
+  text-transform: uppercase !important;
+}
+
+#${id} a {
+  color: inherit;
+}
+#${id} a:hover {
+  text-decoration: underline;
+}
+
+#${id} .can_button,
+#${id} #can_embed_form input[type=submit],
+#${id} #can_embed_form .button,
+#${id} #donate_auto_modal input[type=submit],
+#${id} #donate_auto_modal .button {
+  padding: 12px 16px;
+  font-weight: 700;
+  background-color: var(--color-yellow);
+  color: var(--color-charcoal);
+}
+
+#${id}.light .can_button,
+#${id}.light #can_embed_form input[type=submit],
+#${id}.light #can_embed_form .button,
+#${id}.light #donate_auto_modal input[type=submit],
+#${id}.light #donate_auto_modal .button {
+  background-color: var(--color-yellow);
+  color: var(--color-charcoal);
+}
+
+/* Events */
+
+#${id}.event #can_embed_form.can_float #form_col1,
+#${id}.campaign #can_embed_form.can_float #new_rsvp #form_col1 {
   width: 100%;
-  height: 100%;
-  border: 0;
-  background: white;
+  float: none;
+  display: grid;
+  grid-auto-flow: dense;
+  grid-template-columns: 1fr minmax(0, 1fr);
+  grid-template-rows: auto;
+  grid-column-gap: 16px;
+}
+#${id}.event #can_embed_form.can_float #form_col2,
+#${id}.campaign #can_embed_form.can_float #new_rsvp #form_col2 {
+  width: calc(50% - 8px);
+  float: none;
+  margin: 0 auto;
+}
+#${id}.event #can_embed_form .form_builder_output,
+#${id}.campaign #can_embed_form #new_rsvp .form_builder_output {
+  display: none;
+}
+#${id}.event #can_embed_form .international_link-wrap[style],
+#${id}.campaign #can_embed_form #new_rsvp .international_link-wrap[style] {
+  display: none !important;
+}
+#${id}.event #can_embed_form #action_welcome_message,
+#${id}.campaign #can_embed_form #new_rsvp #action_welcome_message {
+  grid-column: 1 / -1;
 }
 `
-
-const makeIframeDoc = (action: Action, layout: Layout) => (
-`<!DOCTYPE html>
-<html>
-<head>
-  <link href="https://actionnetwork.org/css/style-embed-whitelabel-v3.css" rel="stylesheet" type="text/css" />
-  <style>
-    :root {
-      --color-charcoal: rgb(51, 52, 46);
-      --color-charcoal-60pct: rgba(51, 52, 46, 0.6);
-      --color-charcoal-40pct: rgba(51, 52, 46, 0.4);
-      --color-yellow: #ffde16;
-    }
-    * { box-sizing: inherit; }
-    html {
-      font-family: Source Sans Pro;
-      box-sizing: border-box;
-      color: var(--color-charcoal);
-    }
-    body {
-      margin: 0;
-      padding: 16px;
-    }
-    h2 {
-      text-transform: uppercase !important;
-    }
-    .can_button,
-    #can_embed_form input[type=submit],
-    #can_embed_form .button,
-    #donate_auto_modal input[type=submit],
-    #donate_auto_modal .button {
-      padding: 12px 16px;
-      background-color: var(--color-yellow);
-      color: var(--color-charcoal);
-      font-weight: 700; 
-    }
-    .can_button:hover,
-    #can_embed_form input[type=submit]:hover,
-    #can_embed_form .button:hover,
-    #donate_auto_modal input[type=submit]:hover,
-    #donate_auto_modal .button:hover {
-      background-color: var(--color-yellow);
-      color: var(--color-charcoal);
-    }
-  </style>
-  <script src="${action.scriptUrl(layout)}" async></script>
-</head>
-<body>
-  <div class="sunrise-action-network-container" id="${action.containerId()}"></div>
-  <script>
-    console.log(window.location)
-    window.addEventListener('resize', () => {
-      requestAnimationFrame(() => {
-        const form = document.getElementById('can_embed_form')
-        form && form.classList.toggle('can_768', window.innerWidth >= 768)
-      })
-    })
-    window.addEventListener('can_embed_loaded', () => {
-      window.postMessage({ type: 'resize' }, '${window.location.origin}')
-    })
-    const observer = new MutationObserver(() => {
-      window.postMessage({ type: 'resize' }, '${window.location.origin}')
-    })
-    observer.observe(document.body, { attributes: true, childList: true, subtree: true })
-  </script>
-</body>
-</html>
-`
-)

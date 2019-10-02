@@ -2,15 +2,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <script type="module">
-      import ActionNetwork from '../pkg/dist-src/ActionNetwork/index.js'
-      customElements.define('sunrise-action-network', ActionNetwork)
-    </script>
+    <script src="./ActionNetwork.ts"></script>
     <style>
       body { margin: 0; }
     </style>
   </head>
   <body>
-    <sunrise-action-network action="https://actionnetwork.org/events/july-hub-meeting" layout="standard"></sunrise-action-network>
+    <sunrise-action-network
+      action="https://actionnetwork.org/events/morbi-aliquet-nunc-non"
+      layout="standard"
+      theme="dark">
+    </sunrise-action-network>
   </body>
 </html>
