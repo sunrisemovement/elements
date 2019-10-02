@@ -116,15 +116,15 @@ export default class ActionNetwork extends HTMLElement {
     if (this.hasAttribute('action')) this._action = Action.parse(this.getAttribute('action')!)
     if (!this._action) return
 
-    const style = document.createElement('style')
-    style.textContent = createStyle(this._action.containerId())
-    this.appendChild(style)
-
     const link = document.createElement('link')
     link.rel = 'stylesheet'
     link.type = 'text/css'
     link.href = 'https://actionnetwork.org/css/style-embed-whitelabel-v3.css'
     this.appendChild(link)
+
+    const style = document.createElement('style')
+    style.textContent = createStyle(this._action.containerId())
+    this.appendChild(style)
 
     const script = document.createElement('script')
     script.async = true
@@ -162,6 +162,7 @@ const createStyle = (id: string) => `
 
 #${id} * {
   box-sizing: border-box;
+  font-family: Source Sans Pro;
 }
 
 /* Theme */
@@ -190,6 +191,8 @@ const createStyle = (id: string) => `
 
 #${id} h2 {
   text-transform: uppercase !important;
+  text-align: center;
+  text-shadow: none;
 }
 
 #${id} a {
