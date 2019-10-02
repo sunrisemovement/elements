@@ -150,6 +150,7 @@ const createStyle = (id: string) => `
   --color-charcoal-60pct: rgba(51, 52, 46, 0.6);
   --color-charcoal-40pct: rgba(51, 52, 46, 0.4);
   --color-yellow: #ffde16;
+  --color-yellow-lightened: #fff095;
 
   display: block;
   overflow: auto;
@@ -195,11 +196,30 @@ const createStyle = (id: string) => `
   text-shadow: none;
 }
 
+#${id} #can_embed_form h4,
+#${id} #can_embed_form_inner h4 {
+  color: inherit;
+  font-family: inherit;
+}
+
 #${id} a {
   color: inherit;
 }
 #${id} a:hover {
   text-decoration: underline;
+}
+
+#${id} #can_embed_form .can_select {
+  color: #434343;
+}
+
+#${id} #can_embed_form input.floatlabel-input {
+  padding-top: 6px;
+  height: 52px;
+}
+
+#${id} #can_embed_form label.floatlabel-label-active {
+  top: 0;
 }
 
 #${id} .can_button,
@@ -212,14 +232,16 @@ const createStyle = (id: string) => `
   background-color: var(--color-yellow);
   color: var(--color-charcoal);
 }
-
-#${id}.light .can_button,
-#${id}.light #can_embed_form input[type=submit],
-#${id}.light #can_embed_form .button,
-#${id}.light #donate_auto_modal input[type=submit],
-#${id}.light #donate_auto_modal .button {
-  background-color: var(--color-yellow);
-  color: var(--color-charcoal);
+#${id} #can_embed_form input[type="submit"]:hover,
+#${id} #can_embed_form .button:hover,
+#${id} #donate_auto_modal input[type="submit"]:hover,
+#${id} #donate_auto_modal .button:hover,
+#${id} #can_embed_form input[type="submit"]:active,
+#${id} #can_embed_form .button:active,
+#${id} #donate_auto_modal input[type="submit"]:active,
+#${id} #donate_auto_modal .button:active {
+  background-color: var(--color-yellow-lightened) !important;
+  color: var(--color-charcoal) !important;
 }
 
 /* Events */
