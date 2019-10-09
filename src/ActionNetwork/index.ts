@@ -283,13 +283,20 @@ const createStyle = (id: string) => `
 
 /* Event Campaigns */
 
-#${id}.campaign #form_col1 {
+#${id}.campaign #can_embed_form.can_768 #form_col1 {
   width: 64%;
 }
-#${id}.campaign #form_col3 {
+
+#${id}.campaign #can_embed_form.can_768 #form_col3 {
   width: 32%;
 }
-#${id}.campaign #form_col4 {
+
+#${id}.campaign #can_embed_form #form_col4,
+#${id}.campaign #can_embed_form #form_col2 {
   display: none;
+}
+
+#${id}.campaign #can_embed_form #form_col1 {
+  width: 100%;
 }
 `
