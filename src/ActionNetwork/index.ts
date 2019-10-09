@@ -225,12 +225,14 @@ const createStyle = (id: string) => `
 #${id} .can_button,
 #${id} #can_embed_form input[type=submit],
 #${id} #can_embed_form .button,
+#${id} #can_embed_form #can_zip_search input[type=submit],
 #${id} #donate_auto_modal input[type=submit],
 #${id} #donate_auto_modal .button {
   padding: 12px 16px;
   font-weight: 700;
   background-color: var(--color-yellow);
   color: var(--color-charcoal);
+  height: 52px;
 }
 #${id} #can_embed_form input[type="submit"]:hover,
 #${id} #can_embed_form .button:hover,
@@ -242,6 +244,10 @@ const createStyle = (id: string) => `
 #${id} #donate_auto_modal .button:active {
   background-color: var(--color-yellow-lightened) !important;
   color: var(--color-charcoal) !important;
+}
+
+#${id} #can_embed_form #search_location_list ul li .button {
+  padding: 8px 12px;
 }
 
 /* Events */
@@ -273,5 +279,17 @@ const createStyle = (id: string) => `
 #${id}.event #can_embed_form #action_welcome_message,
 #${id}.campaign #can_embed_form #new_rsvp #action_welcome_message {
   grid-column: 1 / -1;
+}
+
+/* Event Campaigns */
+
+#${id}.campaign #form_col1 {
+  width: 64%;
+}
+#${id}.campaign #form_col3 {
+  width: 32%;
+}
+#${id}.campaign #form_col4 {
+  display: none;
 }
 `
