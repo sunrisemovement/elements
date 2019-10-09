@@ -188,6 +188,10 @@ const createStyle = (id: string) => `
   border-color: #696969;
 }
 
+#${id}.dark h2 {
+  color: rgba(255,255,255,0.87) !important;
+}
+
 /* Defaults */
 
 #${id} h2 {
