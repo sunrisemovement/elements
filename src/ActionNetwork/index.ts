@@ -296,7 +296,7 @@ const createStyle = (id: string) => `
 }
 
 #${id}.campaign #can_embed_form #form_col4,
-#${id}.campaign #can_embed_form #form_col2 {
+#${id}.campaign #can_embed_form #form_col2.host_custom_html {
   display: none;
 }
 
